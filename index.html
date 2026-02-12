@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario SAMURAI</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Refuerzo para asegurar que el formulario se oculte */
+        .hidden { display: none !important; }
+        /* Mejora visual para los botones de eliminar */
+        .delete-btn { cursor: pointer; padding: 2px 8px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Inventario SAMURAI</h1>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Buscar por nombre o categoría...">
+        </div>
+        <div class="actions">
+            <button id="export-btn" class="excel-btn">📥 Excel</button>
+            <button id="add-product-btn" class="primary">+ Producto</button>
+        </div>
+    </header>
+
+    <section id="form-container" class="hidden">
+        <div class="form-card">
+            <h3>Nuevo Producto</h3>
+            <input type="text" id="p-name" placeholder="Nombre (Ej: Polo Classic)">
+            <input type="text" id="p-category" placeholder="Categoría">
+            <input type="text" id="p-color" placeholder="Color (Solo letras)">
+            <input type="text" id="p-size" placeholder="Talla (Núm o Letras)">
+            <input type="number" id="p-stock" min="0" placeholder="Stock Inicial">
+            <input type="number" id="p-cost" placeholder="Costo ($)">
+            
+            <div class="form-buttons">
+                <button type="button" class="secondary" id="btn-cancelar">Cancelar</button>
+                <button type="button" class="primary" id="btn-guardar">Guardar</button>
+            </div>
+        </div>
+    </section>
+
+    <main id="inventory-root"></main>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
