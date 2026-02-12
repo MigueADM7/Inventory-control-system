@@ -222,29 +222,3 @@ inventoryRoot.addEventListener('change', async (e) => {
     }
   }
 });
-
-// ==========================================
-// ⚡ MODO DEMO: CARGADOR DE DATOS DE PRUEBA
-// ==========================================
-
-const productosDemo = [
-  { name: "Camisa Polo", category: "Ropa Superior", color: "Azul", size: "S", stock: 10, cost: 25000 },
-  { name: "Camisa Polo", category: "Ropa Superior", color: "Azul", size: "M", stock: 8, cost: 25000 },
-  { name: "Camisa Polo", category: "Ropa Superior", color: "Rojo", size: "S", stock: 12, cost: 25000 },
-  { name: "Jeans Slim", category: "Pantalones", color: "Negro", size: "30", stock: 10, cost: 45000 },
-  { name: "Jeans Slim", category: "Pantalones", color: "Negro", size: "32", stock: 7, cost: 45000 },
-  { name: "Tenis Deportivos", category: "Calzado", color: "Blanco", size: "40", stock: 5, cost: 80000 }
-];
-
-// AQUÍ ESTÁ EL CAMBIO: Usamos una constante y luego la asignamos a window
-const cargarDatosDemo = async () => {
-  const confirmacion = confirm("¿Cargar productos de prueba?");
-  if (!confirmacion) return;
-  for (const p of productosDemo) {
-    await addDoc(collection(db, "productos"), { ...p, timestamp: Date.now() });
-  }
-  alert("¡Demo cargada!");
-};
-
-// EXPORTACIÓN MANUAL AL OBJETO WINDOW (Fundamental para la consola)
-window.cargarDatosDemo = cargarDatosDemo;
