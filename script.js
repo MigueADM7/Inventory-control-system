@@ -9,10 +9,8 @@ const db = getFirestore(app);
 const formContainer = document.getElementById('form-container');
 const inventoryRoot = document.getElementById('inventory-root');
 
-// --- VARIABLE GLOBAL PARA EL BUSCADOR ---
 let todosLosProductos = [];
 
-// --- FUNCIONES DE CONTROL ---
 const abrirFormulario = () => formContainer.classList.remove('hidden');
 
 const cerrarFormulario = () => {
@@ -29,7 +27,6 @@ const clearFields = () => {
   document.getElementById('p-cost').value = '';
 };
 
-// --- LÓGICA DE RENDERIZADO Y FILTRADO ---
 const renderizarInventario = () => {
   const filtro = document.getElementById('search-input').value.toLowerCase();
   inventoryRoot.innerHTML = "";
@@ -37,37 +34,27 @@ const renderizarInventario = () => {
   const categories = {};
   let granTotalInversion = 0;
 
-  // Filtramos la lista global
   const productosFiltrados = todosLosProductos.filter(p =>
     p.name.toLowerCase().includes(filtro) ||
     p.category.toLowerCase().includes(filtro)
   );
 
-  // Agrupamos los productos filtrados
   productosFiltrados.forEach(p => {
     const catName = p.category.toUpperCase();
     if (!categories[catName]) categories[catName] = [];
     categories[catName].push(p);
   });
 
-  // OBTENER CATEGORÍAS ORDENADAS ALFABÉTICAMENTE (A-Z)
   const nombreCategoriasOrdenadas = Object.keys(categories).sort();
 
-  // Dibujamos las tablas por categoría (en orden)
   nombreCategoriasOrdenadas.forEach(cat => {
-
-    // --- ORDENAMIENTO DE 3 NIVELES: NOMBRE -> COLOR -> TALLA ---
     categories[cat].sort((a, b) => {
-        // 1. Primero ordenamos por NOMBRE (A-Z)
         const nombreDiff = a.name.localeCompare(b.name);
         if (nombreDiff !== 0) return nombreDiff;
 
-        // 2. Si el nombre es igual, ordenamos por COLOR (A-Z)
-        // Usamos (a.color || "") para evitar errores si el color está vacío
         const colorDiff = (a.color || "").localeCompare(b.color || "");
         if (colorDiff !== 0) return colorDiff;
 
-        // 3. Si nombre y color son iguales, ordenamos por TALLA LÓGICA
         const pesosTallas = {
             "unica": 0, "única": 0, "3xs": 1, "xxs": 2, "xs": 3, 
             "s": 4, "m": 5, "l": 6, "xl": 7, "xxl": 8, "xxxl": 9
@@ -77,19 +64,16 @@ const renderizarInventario = () => {
         const tallaA = cleanSize(a.size);
         const tallaB = cleanSize(b.size);
 
-        // Si ambas son tallas estándar
         if (pesosTallas[tallaA] !== undefined && pesosTallas[tallaB] !== undefined) {
             return pesosTallas[tallaA] - pesosTallas[tallaB];
         }
 
-        // Si son números (ej: 38, 40)
         const numA = parseFloat(tallaA);
         const numB = parseFloat(tallaB);
         if (!isNaN(numA) && !isNaN(numB)) {
             return numA - numB;
         }
 
-        // Si no, orden alfabético normal para la talla
         return tallaA.localeCompare(tallaB);
     });
 
@@ -135,7 +119,6 @@ const renderizarInventario = () => {
     inventoryRoot.appendChild(section);
   });
 
-  // Mostramos el Gran Total
   if (productosFiltrados.length > 0) {
     const totalDiv = document.createElement('div');
     totalDiv.className = 'grand-total-card';
@@ -146,52 +129,29 @@ const renderizarInventario = () => {
   }
 };
 
-// --- FUNCIÓN PARA EXPORTAR A EXCEL ---
 const exportarExcel = () => {
   if (todosLosProductos.length === 0) {
     alert("No hay datos para exportar.");
     return;
   }
-
-  // 1. Cabecera del archivo CSV
   let csvContent = "Producto,Categoría,Color,Talla,Stock,Costo Unitario,Inversión Total\n";
-
-  // 2. Recorremos los productos y creamos las filas
   todosLosProductos.forEach(p => {
     const total = p.stock * p.cost;
-    // Aseguramos que si hay comas en los nombres, no rompan el CSV (poniéndolo entre comillas)
-    const row = [
-      `"${p.name}"`,
-      `"${p.category}"`,
-      p.color,
-      p.size,
-      p.stock,
-      p.cost,
-      total
-    ].join(",");
+    const row = [`"${p.name}"`,`"${p.category}"`,p.color,p.size,p.stock,p.cost,total].join(",");
     csvContent += row + "\n";
   });
-
-  // 3. Crear el archivo Blob con codificación para tildes
-  // El '\uFEFF' es clave para que Excel reconozca las tildes y ñ en español
   const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-
-  // 4. Crear enlace de descarga temporal y hacer clic automático
   const link = document.createElement("a");
   const url = URL.createObjectURL(blob);
   link.setAttribute("href", url);
-
-  // Ponemos la fecha en el nombre del archivo
   const fecha = new Date().toLocaleDateString().replace(/\//g, '-');
   link.setAttribute("download", `Inventario_${fecha}.csv`);
-
   link.style.visibility = 'hidden';
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 };
 
-// --- ASIGNACIÓN DE EVENTOS ---
 document.getElementById('add-product-btn').addEventListener('click', abrirFormulario);
 document.getElementById('btn-cancelar').addEventListener('click', cerrarFormulario);
 document.getElementById('search-input').addEventListener('input', renderizarInventario);
@@ -202,16 +162,14 @@ document.getElementById('btn-guardar').addEventListener('click', async () => {
   const category = document.getElementById('p-category').value.trim();
   const stockInput = Number(document.getElementById('p-stock').value);
 
-  // 1. Validación de campos obligatorios
   if (!name || !category) {
     alert("⚠️ Nombre y Categoría son obligatorios");
     return;
   }
 
-  // 2. NUEVO: Validación de stock negativo al crear
   if (stockInput < 0) {
     alert("⚠️ El stock inicial no puede ser negativo");
-    return; // Detiene la ejecución aquí
+    return;
   }
 
   const product = {
@@ -233,14 +191,11 @@ document.getElementById('btn-guardar').addEventListener('click', async () => {
   }
 });
 
-// --- LECTURA EN TIEMPO REAL ---
 onSnapshot(collection(db, "productos"), (snapshot) => {
-  // Actualizamos la lista global y mandamos a renderizar
   todosLosProductos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   renderizarInventario();
 });
 
-// --- GESTIÓN DE STOCK Y ELIMINACIÓN ---
 inventoryRoot.addEventListener('click', async (e) => {
   const btnEliminar = e.target.closest('.delete-btn');
   if (btnEliminar) {
@@ -251,25 +206,45 @@ inventoryRoot.addEventListener('click', async (e) => {
   }
 });
 
-// 2. Escuchar CAMBIOS (Para Actualizar Stock)
 inventoryRoot.addEventListener('change', async (e) => {
   if (e.target.classList.contains('stock-input')) {
     const id = e.target.getAttribute('data-id');
     let nuevoStock = Number(e.target.value);
-
-    // PROTECCIÓN CONTRA NEGATIVOS MANUALES
     if (nuevoStock < 0) {
       alert("⚠️ El stock no puede ser negativo.");
-      e.target.value = 0; // Lo reseteamos visualmente a 0
-      nuevoStock = 0;     // Lo reseteamos para la base de datos
+      e.target.value = 0;
+      nuevoStock = 0;
     }
-
     try {
       await updateDoc(doc(db, "productos", id), { stock: nuevoStock });
-      // No necesitamos console.log porque Firebase avisará al onSnapshot y actualizará todo solo
     } catch (error) {
       console.error("Error al actualizar stock:", error);
-      alert("Error al guardar el stock.");
     }
   }
 });
+
+// ==========================================
+// ⚡ MODO DEMO: CARGADOR DE DATOS DE PRUEBA
+// ==========================================
+
+const productosDemo = [
+  { name: "Camisa Polo", category: "Ropa Superior", color: "Azul", size: "S", stock: 10, cost: 25000 },
+  { name: "Camisa Polo", category: "Ropa Superior", color: "Azul", size: "M", stock: 8, cost: 25000 },
+  { name: "Camisa Polo", category: "Ropa Superior", color: "Rojo", size: "S", stock: 12, cost: 25000 },
+  { name: "Jeans Slim", category: "Pantalones", color: "Negro", size: "30", stock: 10, cost: 45000 },
+  { name: "Jeans Slim", category: "Pantalones", color: "Negro", size: "32", stock: 7, cost: 45000 },
+  { name: "Tenis Deportivos", category: "Calzado", color: "Blanco", size: "40", stock: 5, cost: 80000 }
+];
+
+// AQUÍ ESTÁ EL CAMBIO: Usamos una constante y luego la asignamos a window
+const cargarDatosDemo = async () => {
+  const confirmacion = confirm("¿Cargar productos de prueba?");
+  if (!confirmacion) return;
+  for (const p of productosDemo) {
+    await addDoc(collection(db, "productos"), { ...p, timestamp: Date.now() });
+  }
+  alert("¡Demo cargada!");
+};
+
+// EXPORTACIÓN MANUAL AL OBJETO WINDOW (Fundamental para la consola)
+window.cargarDatosDemo = cargarDatosDemo;
