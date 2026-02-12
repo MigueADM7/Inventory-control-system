@@ -28,12 +28,12 @@ Esta aplicación permite gestionar flujos de mercancía, costos de inversión y 
 | **HTML5 Semántico** | Estructura de la aplicación optimizada para accesibilidad. |
 
 ## 📸 Vista Previa
-> [!TIP]
-> **Inserta aquí tu captura de pantalla.** Puedes simplemente arrastrar la imagen dentro de este archivo en GitHub una vez que lo hayas guardado para que se genere el link automáticamente.
+> <img width="938" height="835" alt="Screenshot 2026-02-12 172241" src="https://github.com/user-attachments/assets/d964588f-f59c-47bf-b83f-de2228a25b11" />
+> <img width="444" height="561" alt="Screenshot 2026-02-12 172249" src="https://github.com/user-attachments/assets/f8b1803e-08eb-4a06-aaee-38a91b2fbcdc" />
 
 ## 📂 Estructura del Proyecto
 
-\`\`\`text
+```text
 INVENTARIO/
 ├── .firebase/        # Configuración interna del CLI de Firebase
 ├── config.js         # Variables de configuración y conexión al SDK
@@ -41,5 +41,3 @@ INVENTARIO/
 ├── script.js         # Lógica central (CRUD, Firebase Ops, Sorting)
 ├── style.css         # Definición de estilos y diseño responsive
 └── firebase.json     # Reglas de hosting y redirecciones de seguridad
-\`\`\`
-EOF
